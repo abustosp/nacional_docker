@@ -12,6 +12,7 @@ services:
     volumes:
         - ./mysql:/var/lib/mysql
         - ./master:/master
+        - ./backups:/backups
     # command: mysql -uroot -proot master < master/master.sql
 
   nacional:
