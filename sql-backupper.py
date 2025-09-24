@@ -52,4 +52,15 @@ for db in bases_de_datos:
 print("---------------------------------------")
 print("Respaldo de todas las bases de datos completado.")
 
-
+# hacer un tar.gz de la carpeta creada y eliminar la original
+tar_filename = f"backups_{hoy_carpeta}.tar.gz"
+tar_filepath = os.path.join(directorio, tar_filename)
+comando_tar = f'tar -czf "{tar_filepath}" -C "{directorio}" "{hoy_carpeta}"'
+os.system(comando_tar)
+# eliminar la carpeta original
+comando_eliminar_carpeta = f'rm -rf "{hoy_path}"'
+os.system(comando_eliminar_carpeta)
+print(f"Archivo comprimido creado: {tar_filepath}")
+print("Carpeta original eliminada.")
+print("---------------------------------------")
+print("Proceso de respaldo finalizado.")
