@@ -8,3 +8,4 @@ importar.sh
 venv
 .env
 backups
+master/*
