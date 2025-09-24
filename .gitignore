@@ -5,5 +5,6 @@ importar.sh
 creardb.sh
 importar.sh
 .venv
+venv
 .env
 
