@@ -63,3 +63,15 @@ Si tenemos git lo descargamos con `git clone https://github.com/abustosp/Naciona
 - modificar las claves por defecto (`root`), si dejamos la original estamos dejando las bases de manera muy insegura y cualquiera podría acceder.
 
 - Agregar el ingreso a IPs autorizadas (para esto se requiere tener un poco más de conocimientos de Administración de Bases de Datos de MySQL, hay muchos tutoriales en internet)
+
+# Automatizar Backups
+
+Para automatizar los backups podemos usar el script `run-sql-backupper.sh` que se encuentra en la carpeta `scripts`, este script activa un entorno virtual de python, y ejecuta el script `sql-backupper.py` que realiza el backup de las bases de datos en la carpeta `backups` (dentro de la carpeta del proyecto).
+
+## Cronjob
+
+Para automatizar la ejecución del script podemos usar un cronjob, para esto editamos el crontab con `crontab -e` y agregamos la siguiente línea para que se ejecute todos los días a las 0 AM:
+
+``` cron
+ 0 0 * * * cd /docker/nacional_docker && ./run-sql-backupper.sh 
+ ```
