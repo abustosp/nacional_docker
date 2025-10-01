@@ -38,6 +38,7 @@ for i in archivos:
                 linea = ''
             if 'Database: ' in linea:
                 database = re.search(r'Database: (.+)', linea).group(1)
+                print(f'Base de datos encontrada: {database}')
                 break
 
     # agregar a importar la línea f'docker exec -ti mysql bash -c "mysql -uroot -proot {database.replace(" ", "_")} < master/{i.split("/")[-1]}"'
