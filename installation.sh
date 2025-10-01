@@ -7,13 +7,13 @@ set -euo pipefail
 echo "Actualizando lista de paquetes..."
 sudo apt update
 
-# Instalar python-dotenv
+# Instalar req.txt
 echo "Instalando python-dotenv en un entorno virtual..."
 sudo apt install python3-venv -y
 python3 -m venv .venv
 source ./.venv/bin/activate
 sudo apt install python3-pip -y
-pip3 install python-dotenv
+pip3 install -r req.txt
 
 
 # Instalar Docker
