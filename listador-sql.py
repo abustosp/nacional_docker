@@ -30,15 +30,20 @@ for i in archivos:
     # imprimir la database (es lo que precede a "Database: ") (está dentro de las primeras 5 línes)
     i = i.replace('\\', '/')
     print(f'Procesando archivo: {i}')
-    with open(i, 'r') as f:
+    with open(i, "rb") as f:  # abrir en modo binario
         for j in range(5):
-            try:
-                linea = f.readline()
-            except:
-                linea = ''
-            if 'Database: ' in linea:
-                database = re.search(r'Database: (.+)', linea).group(1)
-                print(f'Base de datos encontrada: {database}')
+            # leer la línea en bytes
+            linea_bytes = f.readline()
+            if not linea_bytes:
+                break
+            # decodificar con tolerancia a errores
+            linea = linea_bytes.decode("utf-8", errors="ignore").strip()
+
+            if "Database: " in linea:
+                match = re.search(r"Database: (.+)", linea)
+                if match:
+                    database = match.group(1)
+                    print(f"Base de datos encontrada: {database}")
                 break
 
     # agregar a importar la línea f'docker exec -ti mysql bash -c "mysql -uroot -proot {database.replace(" ", "_")} < master/{i.split("/")[-1]}"'
