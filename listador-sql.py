@@ -32,7 +32,10 @@ for i in archivos:
     print(f'Procesando archivo: {i}')
     with open(i, 'r') as f:
         for j in range(5):
-            linea = f.readline()
+            try:
+                linea = f.readline()
+            except:
+                linea = ''
             if 'Database: ' in linea:
                 database = re.search(r'Database: (.+)', linea).group(1)
                 break
