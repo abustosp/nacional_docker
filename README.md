@@ -75,3 +75,7 @@ Para automatizar la ejecución del script podemos usar un cronjob, para esto edi
 ``` cron
  0 0 * * * cd /docker/nacional_docker && ./run-sql-backupper.sh 
  ```
+Si el usuario es root (recomendado) la línea sería:
+ ``` cron
+ 0 0 * * * bash -c "cd /root/docker/nacional_docker && ./run-sql-backupper.sh"
+```
