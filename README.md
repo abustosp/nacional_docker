@@ -22,7 +22,10 @@ Si tenemos git lo descargamos con `git clone https://github.com/abustosp/Naciona
 
 5. Copiamos nuestra licencia en la `carpeta server/cfg` 
 
-6. Agregamos la contraseña de la base de datos en el archivo `.env` en la variable `MYSQL_ROOT_PASSWORD=`
+6. editamos el archivo `.env` y hacemos lo siguiente:
+   - Acutalizamos la contraseña de la Base de datos en la variable `MYSQL_ROOT_PASSWORD=`
+   - Debemos elegir el motor de base de datos, puede ser `MYSQL` o `MARIADB`, por defecto está `MARIADB`, si queremos usar `MYSQL` lo cambiamos en la variable `MOTOR=`
+   - Excluimos las bases de datos que no queremos que se hagan backup en la variable `EXCLUDE_DBS=`, separando los nombres con `|` (por ejemplo `EXCLUDE_DBS=information_schema|performance_schema|mysql|sys` para excluir las bases de datos del sistema) (Opcional)
 
 7. Modificamos el archivo `server/cfg/nacional.cfg` con el editor de texto que prefiramos cambiamos los siguientes valores:
    - `net.host=localhost` por `net.host=0.0.0.0`
@@ -41,8 +44,10 @@ Si tenemos git lo descargamos con `git clone https://github.com/abustosp/Naciona
 3. Una vez copiada la carpeta abrimos con conectamos por SSH al servidor y hacemos lo siguiente:
    
    1. Vamos a la carpeta con los archivos `cd NombreDeTuCarpeta`
+
+   2. Editamos el docker-compose.yml para seleccionar el motor de base de datos que queremos usar (MYSQL o MARIADB), si dejamos el que viene por defecto es MARIADB, si queremos usar MYSQL debemos comentar la linea que comienza con `image: mariadb` y descomentar la linea que comienza con `image: mysql`.
    
-   2. Instalamos el nacional, tenemos 2 opciones:
+   3. Instalamos el nacional, tenemos 2 opciones:
       
       1. Corremos `bash installation.sh`, para hacer una instalación un poco mas automatizada
       
