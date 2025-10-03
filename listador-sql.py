@@ -9,7 +9,7 @@ load_dotenv()
 sqlpassword = os.getenv("MYSQL_ROOT_PASSWORD")
 motor = os.getenv("MOTOR")
 if motor not in ["MYSQL", "MARIADB"]:
-    motor = "MYSQL"
+    motor = "MARIADB"
 
 #directorio = askdirectory()
 directorio = "master"

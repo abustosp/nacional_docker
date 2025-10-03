@@ -11,7 +11,7 @@ sqlpassword = os.getenv("MYSQL_ROOT_PASSWORD")
 EXCLUDE_DBS = os.getenv("EXCLUDE_DBS", "").split("|")
 motor = os.getenv("MOTOR")
 if motor not in ["MYSQL", "MARIADB"]:
-    motor = "MYSQL"
+    motor = "MARIADB"
 
 directorio = "backups"
 hoy_carpeta = datetime.now().strftime("%Y_%m_%d")
