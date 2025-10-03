@@ -14,7 +14,7 @@ if motor not in ["MYSQL", "MARIADB"]:
     motor = "MARIADB"
 
 directorio = "backups"
-hoy_carpeta = datetime.now().strftime("%Y_%m_%d")
+hoy_carpeta = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
 
 # Crear el directorio si no existe
 if not os.path.exists(directorio):
