@@ -9,6 +9,9 @@ import mysql.connector
 load_dotenv()
 sqlpassword = os.getenv("MYSQL_ROOT_PASSWORD")
 EXCLUDE_DBS = os.getenv("EXCLUDE_DBS", "").split("|")
+motor = os.getenv("MOTOR")
+if motor not in ["MYSQL", "MARIADB"]:
+    motor = "MYSQL"
 
 directorio = "backups"
 hoy_carpeta = datetime.now().strftime("%Y_%m_%d")
@@ -45,7 +48,10 @@ for db in bases_de_datos:
     nombre_archivo = f"{db}_{hoy_carpeta}.sql"
     ruta_completa = os.path.join(hoy_path, nombre_archivo)
     comando_crear_carpeta = f'docker exec mysql bash -c "mkdir -p /backups/{hoy_carpeta}"'
-    comando_backup = f'docker exec mysql bash -c "mariadb-dump -uroot -p{sqlpassword} {db}" > "{ruta_completa}"'
+    if motor == "MYSQL":
+        comando_backup = f'docker exec mysql bash -c "mysqldump -uroot -p{sqlpassword} {db}" > "{ruta_completa}"'
+    else:
+        comando_backup = f'docker exec mysql bash -c "mariadb-dump -uroot -p{sqlpassword} {db}" > "{ruta_completa}"'
     os.system(comando_crear_carpeta)
     os.system(comando_backup)
     print(f"Respaldo de {db} completado y guardado en {ruta_completa}")
