@@ -47,6 +47,7 @@ print("---------------------------------------")
 for db in bases_de_datos:
     nombre_archivo = f"{db}_{hoy_carpeta}.sql"
     ruta_completa = os.path.join(hoy_path, nombre_archivo)
+    db = f"'{db}'"
     comando_crear_carpeta = f'docker exec mysql bash -c "mkdir -p /backups/{hoy_carpeta}"'
     if motor == "MYSQL":
         comando_backup = f'docker exec mysql bash -c "mysqldump -uroot -p{sqlpassword} {db}" > "{ruta_completa}"'
