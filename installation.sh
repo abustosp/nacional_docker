@@ -20,6 +20,11 @@ pip3 install -r req.txt
 echo "Instalando docker.io y docker-compose-v2..."
 sudo apt install -y docker.io docker-compose-v2
 
+# Agregar el usuario actual al grupo docker para evitar usar sudo con docker
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
+
 # Levantar los contenedores Docker
 echo "Levantando los contenedores Docker..."
 docker compose up -d
@@ -28,16 +33,9 @@ docker compose up -d
 echo "Esperando 15 segundos para asegurar que los contenedores se han levantado..."
 sleep 15
 
-# Ejecutar script de Python
-echo "Ejecutando listador-sql.py..."
-python3 listador-sql.py
-
-# Ejecutar scripts Bash
-echo "Ejecutando creardb.sh..."
-bash creardb.sh
-
-echo "Ejecutando importar.sh..."
-bash importar.sh
+# Ejecutar script de Python que crea e importa las bases de datos
+echo "Ejecutando importador-sql.py..."
+python3 importador-sql.py
 
 echo "Proceso completado."
 
