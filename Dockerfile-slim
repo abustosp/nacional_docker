@@ -4,6 +4,7 @@ WORKDIR /server
 
 COPY client /client
 COPY server /server
+COPY java /java
 
 RUN apk add mysql-client
 
