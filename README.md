@@ -51,7 +51,102 @@ Si tenemos git lo descargamos con `git clone https://github.com/abustosp/Naciona
       
       1. Corremos `bash installation.sh`, para hacer una instalación un poco mas automatizada
       
-      2. Corremos `docker compose -d` y luego que se creen los contenedores realizar la importación de las bases de datos Master y backups con `python3 listador-sql.py` (para crear los archivos de importación), `bash creardb.sh` (para crear las bases de datos) y `bash importar.sh` (para importar los datos). 
+      2. Corremos `docker compose up -d` y luego que se creen los contenedores realizar la importación de las bases de datos Master y backups con `python3 listador-sql.py` (para crear los archivos de importación), `bash creardb.sh` (para crear las bases de datos) y `bash importar.sh` (para importar los datos).
+
+## Configuración de MariaDB compatible con Nacional
+
+Nacional crea algunas tablas sin indicar el juego de caracteres y otras tablas en `latin1`. Para evitar errores al crear claves foráneas, como `errno: 150 "Foreign key constraint is incorrectly formed"`, el servicio `mysql` de `docker-compose.yml` configura MariaDB con estos valores:
+
+```text
+bind_address=0.0.0.0
+character_set_server=latin1
+collation_server=latin1_swedish_ci
+max_connections=151
+sql_mode=STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+```
+
+`max_connections=151` es el valor por defecto de la imagen utilizada y no se aumenta sin medir antes el consumo y la cantidad real de conexiones. Tampoco es necesario eliminar `ONLY_FULL_GROUP_BY`, porque no forma parte del `sql_mode` configurado.
+
+La configuración debe realizarse en `docker-compose.yml`, no en los archivos `/etc/mysql/...` del servidor host, porque MariaDB se ejecuta dentro de Docker.
+
+### Aplicar la configuración a una instalación existente
+
+1. Copiar la licencia correspondiente en `server/cfg` antes de reiniciar Nacional Server.
+2. Crear un backup antes de modificar o recrear contenedores:
+
+   ```bash
+   ./run-sql-backupper.sh
+   ```
+
+3. Validar la configuración de Compose:
+
+   ```bash
+   docker compose config
+   ```
+
+4. Recrear los contenedores conservando el volumen persistente `./mysql`:
+
+   ```bash
+   docker compose up -d --force-recreate
+   ```
+
+No eliminar la carpeta `./mysql` durante este procedimiento. Las bases existentes no deben convertirse masivamente: los dumps y tablas históricas de Nacional ya utilizan `latin1`.
+
+### Verificar la configuración efectiva
+
+```bash
+docker exec mysql mariadb -uroot -p -e "
+SHOW VARIABLES WHERE Variable_name IN (
+  'bind_address',
+  'character_set_server',
+  'collation_server',
+  'max_connections',
+  'sql_mode'
+);"
+```
+
+Los resultados esperados son `0.0.0.0`, `latin1`, `latin1_swedish_ci`, `151` y el `sql_mode` indicado anteriormente.
+
+Para auditar bases con tablas mezcladas entre `latin1` y `utf8mb4`:
+
+```bash
+docker exec mysql mariadb -uroot -p -e "
+SELECT TABLE_SCHEMA, TABLE_COLLATION, COUNT(*) AS tables_count
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA NOT IN ('information_schema','mysql','performance_schema','sys')
+GROUP BY TABLE_SCHEMA, TABLE_COLLATION
+ORDER BY TABLE_SCHEMA, TABLE_COLLATION;"
+```
+
+Si una base creada de forma incompleta tiene tablas con distintas collations, respaldarla si contiene datos útiles, eliminarla desde Nacional y volver a copiarla después de aplicar la configuración.
+
+Después de copiar una base desde el cliente, verificar `sys_group`, `sys_permission` y su clave foránea reemplazando `Juan Romero` por el nombre correspondiente:
+
+```bash
+docker exec mysql mariadb -uroot -p -e "
+SELECT TABLE_NAME, TABLE_COLLATION
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA='Juan Romero'
+  AND TABLE_NAME IN ('sys_group','sys_permission');
+
+SELECT CONSTRAINT_NAME, TABLE_NAME, REFERENCED_TABLE_NAME
+FROM information_schema.REFERENTIAL_CONSTRAINTS
+WHERE CONSTRAINT_SCHEMA='Juan Romero'
+  AND TABLE_NAME='sys_permission';"
+```
+
+Ambas tablas deben usar `latin1_swedish_ci` y `sys_permission` debe referenciar `sys_group`.
+
+### Acceso remoto a MariaDB
+
+El puerto `3306:3306` y `bind-address=0.0.0.0` permiten conexiones remotas. Esto publica MariaDB en las interfaces de red del servidor, por lo que se debe restringir el puerto `3306` mediante el firewall del proveedor o del sistema operativo para aceptar solamente las IPs autorizadas.
+
+Referencias técnicas:
+
+- [Configuración de la imagen oficial MariaDB](https://hub.docker.com/_/mariadb)
+- [Charsets y collations en MariaDB](https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/setting-character-sets-and-collations)
+- [Requisitos de claves foráneas](https://mariadb.com/docs/server/ha-and-performance/optimization-and-tuning/optimization-and-indexes/foreign-keys)
+- [Seguridad al publicar puertos Docker](https://docs.docker.com/engine/network/port-publishing/)
 
 ## Preparación de las maquinas cliente (las que se conectan al servidor)
 
@@ -67,7 +162,7 @@ Si tenemos git lo descargamos con `git clone https://github.com/abustosp/Naciona
 
 - modificar las claves por defecto (`root`), si dejamos la original estamos dejando las bases de manera muy insegura y cualquiera podría acceder.
 
-- Agregar el ingreso a IPs autorizadas (para esto se requiere tener un poco más de conocimientos de Administración de Bases de Datos de MySQL, hay muchos tutoriales en internet)
+- Restringir el ingreso a MariaDB a IPs autorizadas mediante firewall. No dejar el puerto `3306` abierto a todo Internet.
 
 # Automatizar Backups
 

@@ -8,14 +8,17 @@ services:
     restart: always
     env_file:
       - .env
+    command:
+      - --bind-address=0.0.0.0
+      - --character-set-server=latin1
+      - --collation-server=latin1_swedish_ci
+      - --sql-mode=STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
     ports:
         - "3306:3306"
     volumes:
         - ./mysql:/var/lib/mysql
         - ./master:/master
         - ./backups:/backups
-    # command: mysql -uroot -proot master < master/master.sql
-
   nacional:
     build:
       context: .
