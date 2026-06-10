@@ -9,4 +9,5 @@ COPY java /java
 RUN apk add mysql-client
 
 # Hacer que el contenedor corra nacional_server.jar con los parámetros de memoria especificados
-CMD ["java", "-Xms128M", "-Xmx256M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M", "-jar", "nacional_server.jar"]
+# CMD ["java", "-Xms128M", "-Xmx256M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M", "-jar", "nacional_server.jar"]
+CMD ["java", "-Xms128M", "-Xmx256M", "-jar", "nacional_server.jar"]

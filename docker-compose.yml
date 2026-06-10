@@ -16,9 +16,16 @@ services:
     ports:
         - "3306:3306"
     volumes:
-        - ./mysql:/var/lib/mysql
+        - nacional_dbdata:/var/lib/mysql
         - ./master:/master
         - ./backups:/backups
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
   nacional:
     build:
       context: .
@@ -33,4 +40,8 @@ services:
         - ./server:/server
         - ./client:/client
     depends_on:
-        - mysql
+      mysql:
+        condition: service_healthy
+
+volumes:
+  nacional_dbdata:

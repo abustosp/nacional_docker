@@ -84,13 +84,15 @@ La configuración debe realizarse en `docker-compose.yml`, no en los archivos `/
    docker compose config
    ```
 
-4. Recrear los contenedores conservando el volumen persistente `./mysql`:
+4. Recrear los contenedores conservando el volumen persistente `mysql_data`:
 
    ```bash
-   docker compose up -d --force-recreate
+   docker compose up -d --build --force-recreate
    ```
 
-No eliminar la carpeta `./mysql` durante este procedimiento. Las bases existentes no deben convertirse masivamente: los dumps y tablas históricas de Nacional ya utilizan `latin1`.
+No ejecutar `docker compose down -v`, porque la opción `-v` elimina el volumen `mysql_data` y todas sus bases. Las bases existentes no deben convertirse masivamente: los dumps y tablas históricas de Nacional ya utilizan `latin1`.
+
+Instalaciones anteriores pueden tener los datos en la carpeta `./mysql`. Antes de actualizar a la configuración con volumen Docker, crear un backup completo y conservar esa carpeta hasta verificar que todas las bases fueron restauradas correctamente. El volumen administrado evita errores de permisos cuando el proyecto se encuentra en sistemas de archivos como NTFS.
 
 ### Verificar la configuración efectiva
 
