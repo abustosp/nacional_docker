@@ -16,7 +16,7 @@ services:
     ports:
         - "3306:3306"
     volumes:
-        - nacional_dbdata:/var/lib/mysql
+        - mysql_data:/var/lib/mysql
         - ./master:/master
         - ./backups:/backups
     healthcheck:
@@ -44,4 +44,4 @@ services:
         condition: service_healthy
 
 volumes:
-  nacional_dbdata:
+  mysql_data:
